@@ -1,7 +1,17 @@
-// const [showBtn, setShowBtn] = useState(false);
 
-// setShowBtn(total_pages && total_pages !== page);
+import css from "./LoadMoreBtn.module.css";
 
-// {
-//   showBtn && <button> Load more ... </button>;
-// }
+const LoadMoreBtn = ({ onClick, query }) => {
+  const handleClick = () => {
+    onClick(query); // Передаем текущее значение query при нажатии кнопки Load More
+  };
+
+  return (
+    <div>
+      <button className={css.loadMoreBtn} onClick={handleClick}>
+        Load more
+      </button>
+    </div>
+  );
+};
+export default LoadMoreBtn;

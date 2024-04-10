@@ -1,9 +1,5 @@
-import { Toaster } from "react-hot-toast";
-import toast from "react-hot-toast";
+function ErrorMessage() {
+  return alert("Щось пішло не так... 🙁");
+}
 
-const ErrorMessage = () => {
-  toast.error("This didn't work.");
-
-  return <Toaster position="top-center" reverseOrder={true} />;
-};
 export default ErrorMessage;

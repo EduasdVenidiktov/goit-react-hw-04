@@ -1,63 +1,85 @@
-// import { useEffect, useState } from "react";
-// import "./App.css";
-// import axios from "axios";
+import { useEffect, useState } from "react";
+import SearchBar from "./components/SearchBar/SearchBar";
+import Loader from "./components/Loader/Loader";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "./components/ImageModal/ImageModal";
 
-import { useState } from "react";
+import fetchImages from "../Api";
 
-// export default function App() {
-//   // useEffect(() => {
-//   //   if (!query) return;
-//   // }, [query, page]);
-//   useEffect(() => {
-//     // 1. Оголошуємо стан
-//     const [articles, setArticles] = useState([]);
-
-//     async function fetchArticles() {
-//       const response = await axios.get(
-//         "<https://hn.algolia.com/api/v1/search?query=react>"
-//       );
-//       // 2. Записуємо дані в стан
-//       setArticles(response.data.hits);
-//     }
-//     fetchArticles();
-//   }, []);
-//   return (
-//     <div>
-//       <h1>Latest articles</h1>
-//     </div>
-//   );
-// }
-
-const Btn = () => {
-  const [count, setCount] = useState(0);
-  const hendleEnter = (ev) => {
-    console.log(ev);
-  };
-  const hendleClick = () => {
-    setCount(count + 1);
-  };
-  return (
-    <>
-      <button onClick={hendleClick} onMouseEnter={hendleEnter}>
-        Total click me - {count};
-      </button>
-      ;
-    </>
-  );
-};
+import css from "./App.module.css";
 
 const App = () => {
-  // const handleEnter = () => {
-  //   console.log(Date.now());
-  // };
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [query, setQuery] = useState(""); // loadMore
+  const [page, setPage] = useState(1); // loadMore зберігаємо номер групи/сторінки
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSearch = async (newQuery) => {
+    setQuery(newQuery);
+    setPage(1);
+    setLoading(false);
+    setPhotos([]);
+  };
+
+  const handleLoadMore = () => {
+    setPage(page + 1);
+  };
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalOpen(true); // Эта строка вызывает открытие модального окна
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+    setIsModalOpen(false); // Эта строка вызывает закрытие модального окна
+  };
+
+  useEffect(() => {
+    if (query === "") {
+      //пропускаємо еффект монтування! якщо query це пустая строка або початокве значення стану, то просто виходимо з еффекту і подальший код еффекту не виконується
+      return;
+    }
+    async function fetchData() {
+      try {
+        setError(false);
+        setLoading(true);
+
+        const response = await fetchImages(query, page);
+        const newPhotos = response.data.results;
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+      } catch (error) {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [query, page]);
+
   return (
-    <div>
-      App
-      <Btn />
-      <Btn />
-      <Btn />
-      <Btn />
+    <div className={css.container}>
+      <SearchBar onSubmit={handleSearch} />
+      {error && <ErrorMessage />}
+      {loading && <Loader />}
+      {photos.length > 0 && (
+        <ImageGallery images={photos} onImageClick={handleImageClick} />
+      )}
+      {photos.length > 0 && !loading && (
+        <LoadMoreBtn onClick={handleLoadMore} query={query} />
+      )}
+      <ImageModal
+        isOpen={isModalOpen}
+        imageUrl={selectedImage}
+        onRequestClose={handleCloseModal}
+      />
     </div>
   );
 };
+
 export default App;
