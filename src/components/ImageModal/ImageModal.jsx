@@ -34,7 +34,7 @@ function ImageModal({ isOpen, image, onClose }) {
           X
         </button>
 
-        <img src={image} width="800" />
+        <img src={image} width="500" />
       </Modal>
     </>
   );

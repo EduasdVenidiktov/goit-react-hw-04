@@ -66,10 +66,11 @@ const App = () => {
     <div className={css.container}>
       <SearchBar onSubmit={handleSearch} />
       {error && <ErrorMessage />}
-      {loading && <Loader />}
       {photos.length > 0 && (
         <ImageGallery images={photos} onImageClick={handleImageClick} />
       )}
+      {loading && <Loader />}
+
       {photos.length > 0 && !loading && (
         <LoadMoreBtn onClick={handleLoadMore} query={query} />
       )}
